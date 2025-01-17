@@ -13,8 +13,6 @@ requires-python = ">=3.10"
 dependencies = [
     "pymatgen>=2024.11.13",
     "structuregraph-helpers>=0.0.9",
-    "fairchem-core==1.4.0",
-    "torch_geometric>=2.4.0",
     "average-minimum-distance>=1.5.3",
     "datasets>=3.2.0",
     "moyopy>=0.2.3",
