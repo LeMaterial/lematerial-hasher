@@ -16,5 +16,8 @@ try:
     SIMILARITY_MATCHERS["eqv2"] = EquiformerV2Similarity  # type: ignore
 except ImportError:
     logging.warning(
-        "EquiformerV2Similarity is not available. This is a known issue on MacOS. Otherwise you need to installed the optional dependencies for this feature."
+        "EquiformerV2Similarity is not available. You need to install fairchem-core and its dependencies. "
+        "This issue is known to affect MacOS systems. "
+        "If you're not using MacOS, please ensure the optional dependencies required for this feature are installed. "
+        "For more information, refer to issue #4: https://github.com/Entalpic/material-hasher/issues/4"
     )
