@@ -42,7 +42,8 @@ dev = [
 ]
 
 [project.optional-dependencies]
-geometric = [
+fairchem = [
+"fairchem-core>=1.4.0",
 "torch>=2.4.0",
 "torch_geometric>=2.4.0",
 "pyg_lib",
@@ -50,10 +51,6 @@ geometric = [
 "torch_sparse>=0.6.18",
 "torch_cluster>=1.6.3",
 "torch_spline_conv>=1.2.2",
-]
-
-fairchem = [
-"fairchem-core>=1.4.0",
 ]
 
 [tool.uv]
