@@ -158,6 +158,12 @@ $ uv sync
 $ uv pip install -e .
 ```
 
+To utilize `EquiformerV2Similarity`, please run: 
+
+```bash
+uv sync --extra fairchem
+```
+
 To utilize SLICES, please run:
 
 ```bash
@@ -210,7 +216,13 @@ Pymatgen:
 }
 ```
 
+<<<<<<< HEAD
 EquiformerV2
+||||||| parent of bed38ae (Fix optional dependency and document in README)
+EquiformerV2
+=======
+EquiformerV2:
+>>>>>>> bed38ae (Fix optional dependency and document in README)
 
 ```
 @article{liao2023equiformerv2,
