@@ -38,3 +38,25 @@ dev = [
     "sphinxawesome-theme>=5.3.2",
 ]
 
+[project.optional-dependencies]
+geometric = [
+"torch>=2.4.0",
+"torch_geometric>=2.4.0",
+"pyg_lib",
+"torch_scatter>=2.1.2",
+"torch_sparse>=0.6.18",
+"torch_cluster>=1.6.3",
+"torch_spline_conv>=1.2.2",
+]
+
+fairchem = [
+"fairchem-core>=1.4.0",
+]
+
+[tool.uv]
+# these packages use torch, so we need to build them in the same environment
+no-build-isolation-package = ["pyg_lib", "torch_scatter", "torch_sparse", "torch_cluster", "torch_spline_conv"]
+
+[tool.uv.sources]
+pyg_lib = { git = "https://github.com/pyg-team/pyg-lib.git" }
+
