@@ -218,7 +218,13 @@ Pymatgen:
 }
 ```
 
+<<<<<<< HEAD
 EquiformerV2
+||||||| parent of bed38ae (Fix optional dependency and document in README)
+EquiformerV2
+=======
+EquiformerV2:
+>>>>>>> bed38ae (Fix optional dependency and document in README)
 
 ```
 @article{liao2023equiformerv2,

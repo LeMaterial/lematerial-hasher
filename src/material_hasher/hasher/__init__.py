@@ -2,7 +2,6 @@
 import warnings
 
 from material_hasher.hasher.bawl import BAWLHasher, ShortBAWLHasher
-from material_hasher.hasher.example import SimpleCompositionHasher
 from material_hasher.hasher.pdd import PointwiseDistanceDistributionHasher
 
 warnings.filterwarnings("always")
