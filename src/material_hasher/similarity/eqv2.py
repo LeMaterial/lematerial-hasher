@@ -82,7 +82,7 @@ class EquiformerV2Similarity(SimilarityMatcherBase):
                 )
             except Exception as e:
                 logger.error(
-                    f"Failed to download the model from the Hugging Face model hub: {e}"
+                    f"Failed to download the model from the Hugging Face model hub: {e}. Note that this method requires access to the EquiformerV2 model trained on OMAT24 through [OMAT24 Hugging Face page](https://huggingface.co/fairchem/OMAT24). You then need to connect to your Hugging Face account via `huggingface-cli login` the first time before you run the code."
                 )
 
         if not self.trained:
