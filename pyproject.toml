@@ -53,10 +53,12 @@ fairchem = [
 "torch_spline_conv>=1.2.2",
 ]
 
+[tool.uv.sources]
+pyg_lib = [
+  { extra = "fairchem", git = "https://github.com/pyg-team/pyg-lib.git", marker = "sys_platform == 'darwin'"},
+]
+
 [tool.uv]
 # these packages use torch, so we need to build them in the same environment
 no-build-isolation-package = ["pyg_lib", "torch_scatter", "torch_sparse", "torch_cluster", "torch_spline_conv"]
-
-[tool.uv.sources]
-pyg_lib = { git = "https://github.com/pyg-team/pyg-lib.git" }
 
