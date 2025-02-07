@@ -44,9 +44,8 @@ dev = [
 [project.optional-dependencies]
 fairchem = [
 "fairchem-core>=1.4.0",
-"torch>=2.4.0",
 "torch_geometric>=2.4.0",
-"pyg_lib",
+"pyg_lib>=0.4.0",
 "torch_scatter>=2.1.2",
 "torch_sparse>=0.6.18",
 "torch_cluster>=1.6.3",
@@ -54,11 +53,13 @@ fairchem = [
 ]
 
 [tool.uv.sources]
-pyg_lib = [
-  { extra = "fairchem", git = "https://github.com/pyg-team/pyg-lib.git", marker = "sys_platform == 'darwin'"},
-]
+pyg_lib = [{ extra="fairchem", git = "https://github.com/pyg-team/pyg-lib.git", marker = "sys_platform == 'darwin'" }]
 
 [tool.uv]
 # these packages use torch, so we need to build them in the same environment
 no-build-isolation-package = ["pyg_lib", "torch_scatter", "torch_sparse", "torch_cluster", "torch_spline_conv"]
-
+environments = ["sys_platform == 'darwin'", "sys_platform == 'linux'"]
+find-links = [
+  "https://data.pyg.org/whl/torch-2.4.0+cpu.html",
+  "https://data.pyg.org/whl/torch-2.4.0+cu124.html"
+]
