@@ -4,11 +4,13 @@ from typing import Optional
 import numpy as np
 from amd import PDD, PeriodicSet
 from pymatgen.core import Structure
+from scipy.stats import wasserstein_distance
 
-from material_hasher.hasher.base import HasherBase
+
+from material_hasher.similarity.base import SimilarityMatcherBase
 
 
-class PointwiseDistanceDistributionHasher(HasherBase):
+class PointwiseDistanceDistributionSimilarity(SimilarityMatcherBase):
     def __init__(self, cutoff: float = 100.0, threshold: float = 1e-3):
         """
         Initialize the PDD Generator.
@@ -84,49 +86,110 @@ class PointwiseDistanceDistributionHasher(HasherBase):
         )  # Ensure cutoff is an integer, without collapsing similar rows
 
         return pdd
-
-    def is_hash_equivalent(
-        self,
-        hash1: np.ndarray,
-        hash2: np.ndarray,
-        threshold: Optional[float] = None,
-    ) -> bool:
-        """Check if two PDD hashes are equivalent.
-        PDD hashes are numpy arrays and are considered equivalent if the
-        Euclidean distance between them is less than a given threshold.
+    
+    def get_similarity_score(
+        self, structure1: Structure, structure2: Structure
+    ) -> float:
+        """Returns a similarity score between two structures.
 
         Parameters
         ----------
-        hash1 : np.ndarray
-            First hash to compare.
-        hash2 : str
-            Second hash to compare.
+        structure1 : Structure
+            First structure to compare.
+        structure2 : Structure
+
+        Returns
+        -------
+        float
+            Similarity score between the two structures.
+        """
+
+        hash1 = self.get_material_hash(structure1)
+        hash2 = self.get_material_hash(structure2)
+
+        if hash1.shape != hash2.shape:
+            return np.inf  # Not comparable
+
+        return wasserstein_distance(hash1, hash2)
+    
+    def is_equivalent(
+        self,
+        structure1: Structure,
+        structure2: Structure,
+        threshold: Optional[float] = None,
+    ) -> bool:
+        """Returns True if the two structures are equivalent according to the
+        implemented algorithm.
+        Uses a threshold to determine equivalence if provided and the algorithm
+        does not have a built-in threshold.
+        PDD hashes are numpy arrays and are considered equivalent if the
+        Wasserstein distance between them is less than a given threshold.
+
+        Parameters
+        ----------
+        structure1 : Structure
+            First structure to compare.
+        structure2 : Structure
+            Second structure to compare.
         threshold : float, optional
             Threshold to determine similarity, by default None and the
             algorithm's default threshold is used if it exists.
-            Some algorithms may not have a threshold.
 
         Returns
         -------
         bool
-            True if the two hashes are equivalent, False otherwise.
+            True if the two structures are similar, False otherwise.
         """
-        # TODO(Ramlaoui + msiron): Should we use euclidean distance or something else?
+        hash1 = self.get_material_hash(structure1)
+        hash2 = self.get_material_hash(structure2)
+
         if hash1.shape != hash2.shape:
             return False
 
         if threshold is None:
             threshold = self.threshold
 
-        return np.allclose(hash1, hash2, atol=threshold)
+        distance = wasserstein_distance(hash1, hash2)
+        return distance <= threshold
 
-    def get_pairwise_equivalence(
-        self, structures: list[Structure], threshold: Optional[float] = None
+    def get_pairwise_similarity_scores(
+        self,
+        structures: list[Structure],
     ) -> np.ndarray:
         """Returns a matrix $M$ of equivalence between structures.
         $M$ is a boolean symmetric matrix where entry $M[i, j]$ is ``True``
         if the hash of entries $i$ and $j$ are equivalent (up to ``threshold``)
         and ``False`` otherwise.
+
+        Parameters
+        ----------
+        structures : list[Structure]
+            List of structures to compare.
+
+        Returns
+        -------
+        np.ndarray
+            Matrix of similarity scores between structures.
+        """
+
+        n = len(structures)
+        scores = np.zeros((n, n))
+
+        # Fill triu + diag
+        for i, structure1 in enumerate(structures):
+            for j, structure2 in enumerate(structures):
+                if i <= j:
+                    scores[i, j] = self.get_similarity_score(structure1, structure2)
+
+        # Fill tril
+        scores = scores + scores.T - np.diag(np.diag(scores))
+
+        return scores
+
+    def get_pairwise_equivalence(
+        self, structures: list[Structure], threshold: Optional[float] = None
+    ) -> np.ndarray:
+        """Returns a matrix of equivalence between structures.
 
         Parameters
         ----------
