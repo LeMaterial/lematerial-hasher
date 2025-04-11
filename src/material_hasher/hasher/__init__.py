@@ -1,7 +1,6 @@
 # Copyright 2025 Entalpic
 from material_hasher.hasher.entalpic import EntalpicMaterialsHasher, ShortenedEntalpicMaterialsHasher
 from material_hasher.hasher.example import SimpleCompositionHasher
-from material_hasher.hasher.pdd import PointwiseDistanceDistributionHasher
 
 import warnings
 warnings.filterwarnings('always')
@@ -11,7 +10,6 @@ __all__ = ["EntalpicMaterialsHasher"]
 HASHERS = {
     "Entalpic": EntalpicMaterialsHasher,
     "Shortened Entalpic": ShortenedEntalpicMaterialsHasher,
-    "PDD": PointwiseDistanceDistributionHasher,
 }
 
 
