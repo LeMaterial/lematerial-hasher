@@ -30,6 +30,7 @@ dev = [
     "ipython>=8.29.0",
     "pre-commit>=4.0.1",
     "ruff>=0.8.0",
+    "pytest>=8.3",
     "shibuya>=2024.10.15",
     "sphinx-autoapi>=3.3.2",
     "sphinx-autodoc-typehints>=2.5.0",
@@ -38,5 +39,6 @@ dev = [
     "sphinx-design>=0.6.1",
     "sphinx-math-dollar>=1.2.1",
     "sphinxawesome-theme>=5.3.2",
+    "ipdb>=0.13.13",
 ]
 
