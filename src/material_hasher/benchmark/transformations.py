@@ -1,10 +1,9 @@
 # Copyright 2025 Entalpic
 import inspect
-import random
-from typing import Optional, Union
+from typing import Optional
 
 import numpy as np
-from pymatgen.core import Structure, SymmOp
+from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 ALL_TEST_CASES = [
@@ -16,10 +15,10 @@ ALL_TEST_CASES = [
 ]
 
 PARAMETERS = {
-    "gaussian_noise": {"sigma": np.logspace(0.0001, 0.5,15, base=0.0000001)},
-    "isometric_strain": {"pct": [1,1.05,1.1,1.2,1.5]},
-    "strain": {"sigma": np.logspace(0.001, 0.5,10, base=0.0000001)},
-    "translation": {"sigma": np.logspace(0.0001, 0.5,15, base=0.0000001)},
+    "gaussian_noise": {"sigma": np.logspace(0.0001, 0.5, 15, base=0.0000001)},
+    "isometric_strain": {"pct": [1, 1.05, 1.1, 1.2, 1.5]},
+    "strain": {"sigma": np.logspace(0.001, 0.5, 10, base=0.0000001)},
+    "translation": {"sigma": np.logspace(0.0001, 0.5, 15, base=0.0000001)},
     "symm_ops": {"structure_symmetries": ["all_symmetries_found"]},
 }
 

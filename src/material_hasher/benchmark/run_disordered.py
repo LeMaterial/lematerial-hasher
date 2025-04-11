@@ -1,19 +1,17 @@
 # Copyright 2025 Entalpic
 import datetime
+import logging
 import os
 import time
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Tuple
-import logging
 
 import numpy as np
 import pandas as pd
 import tqdm
 import yaml
 from pymatgen.core import Structure
-
-logger = logging.getLogger(__name__)
 
 from material_hasher.benchmark.disordered import (
     download_disordered_structures,
@@ -24,6 +22,8 @@ from material_hasher.benchmark.disordered import (
 from material_hasher.hasher import HASHERS
 from material_hasher.similarity import SIMILARITY_MATCHERS
 from material_hasher.types import StructureEquivalenceChecker
+
+logger = logging.getLogger(__name__)
 
 STRUCTURE_CHECKERS = {**HASHERS, **SIMILARITY_MATCHERS}
 

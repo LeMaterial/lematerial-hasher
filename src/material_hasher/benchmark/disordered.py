@@ -1,7 +1,7 @@
 # Copyright 2025 Entalpic
+import logging
 from itertools import combinations
 from typing import Dict, List, Tuple
-import logging
 
 import numpy as np
 import pandas as pd
