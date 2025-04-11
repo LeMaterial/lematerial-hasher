@@ -1,17 +1,17 @@
 # Copyright 2025 Entalpic
 import datetime
 import json
+import logging
 import os
 import time
 from pathlib import Path
 from typing import Optional
-import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import yaml
-from datasets import Dataset, VerificationMode, concatenate_datasets, load_dataset
+from datasets import Dataset, VerificationMode, load_dataset
 from pymatgen.core import Structure
 
 from material_hasher.benchmark.transformations import ALL_TEST_CASES, get_test_case
@@ -27,7 +27,9 @@ logger = logging.getLogger(__name__)
 STRUCTURE_CHECKERS = {**HASHERS, **SIMILARITY_MATCHERS}
 
 
-def get_hugging_face_dataset(token: Optional[str] = None) -> Dataset:
+def get_hugging_face_dataset(
+    token: Optional[str] = None, n_rows: Optional[int] = None
+) -> Dataset:
     """
     Only returns the dataset from Hugging Face where all the subsets are concatenated.
 
@@ -36,6 +38,8 @@ def get_hugging_face_dataset(token: Optional[str] = None) -> Dataset:
     token : str, optional
         The authentication token required to access the dataset.
         Optional if the dataset is public or you have already configured the Hugging Face CLI.
+    n_rows : int, optional
+        Number of rows to load from the dataset.
 
     Returns
     -------
@@ -43,28 +47,24 @@ def get_hugging_face_dataset(token: Optional[str] = None) -> Dataset:
         The concatenated dataset from Hugging Face.
     """
 
-    subsets = [
+    split = "train"
+    if n_rows is not None:
+        split += f"[:{n_rows}]"
+
+    return load_dataset(
+        "LeMaterial/LeMat-Bulk",
         "compatible_pbe",
-        "compatible_scan",
-        "compatible_pbesol",
-        "non_compatible",
-    ]
-    dss = []
-    for subset in subsets:
-        dss.append(
-            load_dataset(
-                "LeMaterial/LeMat-Bulk",
-                subset,
-                token=token,
-                verification_mode=VerificationMode.NO_CHECKS,
-            )["train"]
-        )
-    ds = concatenate_datasets(dss)
-    return ds
+        split=split,
+        token=token,
+        verification_mode=VerificationMode.NO_CHECKS,
+    )
 
 
 def get_data_from_hugging_face(
-    token: Optional[str] = None, n_test_elements: int = 100, seed: int = 0
+    token: Optional[str] = None,
+    n_test_elements: int = 100,
+    n_rows: Optional[int] = None,
+    seed: int = 0,
 ) -> list[Structure]:
     """
     Downloads and processes structural data from the Hugging Face `datasets` library.
@@ -80,6 +80,8 @@ def get_data_from_hugging_face(
     n_test_elements : int
         Number of elements to select from the dataset to run the benchmark on. Default is 100.
         This is used to run the transformation benchmark only a subset of LeMat-Bulk.
+    n_rows : int, optional
+        Number of rows to load from the dataset. This will load them in sequential order.
     seed : int
         Random seed for selecting a subset of the dataset. Default is 0.
 
@@ -101,7 +103,7 @@ def get_data_from_hugging_face(
     - Errors during the transformation process are logged but do not halt execution.
     """
 
-    ds = get_hugging_face_dataset(token)
+    ds = get_hugging_face_dataset(token, n_rows=n_rows)
 
     # Convert dataset to Pandas DataFrame
     logger.info("Loaded dataset:", len(ds))
@@ -232,7 +234,11 @@ def hasher_sensitivity(
     else:
         raise ValueError("Unknown structure checker")
 
-    return matching_hashes / len(transformed_structures) if len(transformed_structures) > 0 else 0
+    return (
+        matching_hashes / len(transformed_structures)
+        if len(transformed_structures) > 0
+        else 0
+    )
 
 
 def mean_sensitivity(
