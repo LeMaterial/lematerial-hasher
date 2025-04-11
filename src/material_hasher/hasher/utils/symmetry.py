@@ -1,9 +1,54 @@
 # Copyright 2025 Entalpic
 from shutil import which
 
+import moyopy
 from monty.tempfile import ScratchDir
+from moyopy.interface import MoyoAdapter
 from pymatgen.analysis.structure_analyzer import SpacegroupAnalyzer
 from pymatgen.core import Structure
+
+
+class MoyoSymmetry:
+    """
+    Moyo symmetry using Moyo library
+
+    Parameters
+    ----------
+    symprec : float, optional
+        Symmetry precision tollerance. Defaults to 1e-4.
+    angle_tolerance : float, optional
+        Angle tolerance. Defaults to None.
+    setting : str, optional
+        Setting. Defaults to None.
+    """
+
+    def __init__(
+        self, symprec: float = 1e-4, angle_tolerance: float = None, setting: str = None
+    ):
+        self.symprec = symprec
+        self.angle_tolerance = angle_tolerance
+        self.setting = setting
+
+    def get_symmetry_label(self, structure: Structure) -> int:
+        """Get symmetry space group number from structure
+
+        Parameters
+        ----------
+        structure : Structure
+            Input structure
+
+        Returns
+        -------
+        int: space group number
+        """
+        cell = MoyoAdapter.from_structure(structure)
+        dataset = moyopy.MoyoDataset(
+            cell=cell,
+            symprec=self.symprec,
+            angle_tolerance=self.angle_tolerance,
+            setting=self.setting,
+        )
+        return dataset.number
 
 
 class SPGLibSymmetry:
@@ -48,7 +93,6 @@ class AFLOWSymmetry:
         Raises:
             RuntimeError: If AFLOW is not found
         """
-        from aflow_xtal_finder import XtalFinder
 
         self.aflow_executable = aflow_executable or which("aflow")
 
@@ -70,6 +114,10 @@ class AFLOWSymmetry:
         Returns:
             str: AFLOW label
         """
+
+        # fmt: off
+        from aflow_xtal_finder import XtalFinder
+        # fmt: on
 
         xtf = XtalFinder(self.aflow_executable)
         with ScratchDir("."):
