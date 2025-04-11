@@ -140,16 +140,11 @@ class PointwiseDistanceDistributionSimilarity(SimilarityMatcherBase):
         bool
             True if the two structures are similar, False otherwise.
         """
-        hash1 = self.get_material_hash(structure1)
-        hash2 = self.get_material_hash(structure2)
-
-        if hash1.shape != hash2.shape:
-            return False
 
         if threshold is None:
             threshold = self.threshold
 
-        distance = wasserstein_distance(hash1, hash2)
+        distance = self.get_similarity_score(structure1, structure2)
         return distance <= threshold
 
     def get_pairwise_similarity_scores(
