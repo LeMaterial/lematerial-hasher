@@ -33,12 +33,18 @@ class PymatgenStructureSimilarity(SimilarityMatcherBase):
             First structure to compare.
         structure2 : Structure
             Second structure to compare.
+        threshold : Optional[float]
+            Optional threshold to override the default tolerance.
 
         Returns
         -------
         bool
             True if the two structures are similar, False otherwise.
         """
+        if threshold is not None:
+            # Create a temporary matcher with the new threshold
+            temp_matcher = StructureMatcher(ltol=threshold)
+            return temp_matcher.fit(structure1, structure2)
         return self.matcher.fit(structure1, structure2)
 
     def get_similarity_score(
@@ -60,7 +66,11 @@ class PymatgenStructureSimilarity(SimilarityMatcherBase):
         float
             Similarity score between the two structures.
         """
-        return self.matcher.get_rms_dist(structure1, structure2)
+        # RMS displacement is normalized by (Vol / nsites) ** (1/3) in PMG
+        distance = self.matcher.get_rms_dist(structure1, structure2)
+        if distance is None:  # No alignment found
+            return 0.0
+        return 1.0 - distance[0]
 
     def get_pairwise_equivalence(
         self, structures: list[Structure], threshold: Optional[float] = None
