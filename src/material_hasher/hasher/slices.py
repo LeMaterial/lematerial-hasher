@@ -4,10 +4,13 @@
 # uv pip install -r requirements_slices.txt
 
 
+import tensorflow as tf
 from pymatgen.core.structure import Structure
 from slices.core import SLICES
 
 from material_hasher.hasher.base import HasherBase
+
+tf.get_logger().setLevel("ERROR")
 
 
 class SLICESHasher(HasherBase):
@@ -32,4 +35,3 @@ class SLICESHasher(HasherBase):
             The SLICES string representation of the structure.
         """
         return self.backend.structure2SLICES(structure)
-

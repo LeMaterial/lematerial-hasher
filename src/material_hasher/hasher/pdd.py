@@ -77,9 +77,7 @@ class PointwiseDistanceDistributionHasher(HasherBase):
         """
         periodic_set = self.periodicset_from_structure(structure)
 
-        pdd = PDD(
-            periodic_set, int(self.cutoff), collapse=False
-        )
+        pdd = PDD(periodic_set, int(self.cutoff), collapse=False)
 
         # Round the PDD values to 4 decimal places for numerical stability and consistency.
         pdd = np.round(pdd, decimals=4)

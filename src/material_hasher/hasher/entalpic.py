@@ -13,6 +13,7 @@ class EntalpicMaterialsHasher(HasherBase):
     Returns hash based on bonding graph structure, composition,
     and symmetry.
     """
+
     def __init__(
         self,
         graphing_algorithm: str = "WL",
