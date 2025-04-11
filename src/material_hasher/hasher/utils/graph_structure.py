@@ -1,8 +1,7 @@
 # Copyright 2025 Entalpic
-from pymatgen.analysis.graphs import StructureGraph
+from networkx import Graph
 from pymatgen.analysis.local_env import EconNN, NearNeighbors
 from pymatgen.core import Structure
-from networkx import Graph
 
 
 def get_structure_graph(
@@ -23,10 +22,8 @@ def get_structure_graph(
     Returns:
         Graph: networkx Graph object
     """
-    structure_graph = StructureGraph.with_local_env_strategy(
-        structure=structure,
-        strategy=bonding_algorithm(**bonding_kwargs),
-    )
+    bonding = bonding_algorithm(**bonding_kwargs)
+    structure_graph = bonding.get_bonded_structure(structure)
     for n, site in zip(range(len(structure)), structure):
         structure_graph.graph.nodes[n]["specie"] = site.specie.name
     for edge in structure_graph.graph.edges:
