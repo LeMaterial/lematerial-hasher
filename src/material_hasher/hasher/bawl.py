@@ -97,20 +97,17 @@ class BAWLHasher(HasherBase):
                 "Graphing algorithm {} not implemented".format(self.graphing_algorithm)
             )
         if not self.shorten_hash:
-            if symmetry_label is not None:
-                data["symmetry_label"] = symmetry_label
-            elif self.symmetry_labeling == "AFLOW":
-                data["symmetry_label"] = AFLOWSymmetry().get_symmetry_label(structure)
-            elif self.symmetry_labeling == "SPGLib":
-                data["symmetry_label"] = SPGLibSymmetry().get_symmetry_label(structure)
-            elif self.symmetry_labeling == "moyo":
-                data["symmetry_label"] = MoyoSymmetry().get_symmetry_label(structure)
-            else:
-                raise ValueError(
-                    "Symmetry algorithm {} not implemented".format(
-                        self.symmetry_labeling
-                    )
-                )
+            match (self.symmetry_labeling, symmetry_label):  
+                case (_, label) if label is not None:  
+                    data["symmetry_label"] = label  
+                case ("AFLOW", _):  
+                    data["symmetry_label"] = AFLOWSymmetry().get_symmetry_label(structure)  
+                case ("SPGLib", _):  
+                    data["symmetry_label"] = SPGLibSymmetry().get_symmetry_label(structure)  
+                case ("moyo", _):  
+                    data["symmetry_label"] = MoyoSymmetry().get_symmetry_label(structure)  
+                case (unknown, _):  
+                    raise ValueError(f"Symmetry algorithm {unknown} not implemented")  
         if self.include_composition:
             data["composition"] = structure.composition.formula.replace(" ", "")
         return data
@@ -129,7 +126,7 @@ class BAWLHasher(HasherBase):
             Hash of the structure.
         """
         data = self.get_bawl_materials_data(structure)
-        return "_".join([str(v) for k, v in data.items()])
+        return "_".join([str(v) if v is not None else "" for k, v in data.items()])
 
 
 class ShortBAWLHasher(BAWLHasher):

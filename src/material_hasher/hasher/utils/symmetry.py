@@ -1,4 +1,5 @@
 # Copyright 2025 Entalpic
+import logging
 from shutil import which
 
 import moyopy
@@ -7,15 +8,20 @@ from moyopy.interface import MoyoAdapter
 from pymatgen.analysis.structure_analyzer import SpacegroupAnalyzer
 from pymatgen.core import Structure
 
+logger = logging.getLogger(__name__)
 
 class MoyoSymmetry:
     """
-    Moyo symmetry using Moyo library
+    This is a wrapper around the functions of the Moyo library.
+    It is used to get the symmetry label of a structure, while handling the parameters
+    that can be used for the symmetry detection.
+    By default, we use the same parameters in the original library, and let the user
+    pass custom parameters if needed.
 
     Parameters
     ----------
     symprec : float, optional
-        Symmetry precision tollerance. Defaults to 1e-4.
+        Symmetry precision tolerance. Defaults to 1e-4.
     angle_tolerance : float, optional
         Angle tolerance. Defaults to None.
     setting : str, optional
@@ -23,13 +29,13 @@ class MoyoSymmetry:
     """
 
     def __init__(
-        self, symprec: float = 1e-4, angle_tolerance: float = None, setting: str = None
+        self, symprec: float | None = None, angle_tolerance: float | None = None, setting: str | None = None
     ):
         self.symprec = symprec
         self.angle_tolerance = angle_tolerance
         self.setting = setting
 
-    def get_symmetry_label(self, structure: Structure) -> int:
+    def get_symmetry_label(self, structure: Structure) -> int | None:
         """Get symmetry space group number from structure
 
         Parameters
@@ -41,13 +47,24 @@ class MoyoSymmetry:
         -------
         int: space group number
         """
-        cell = MoyoAdapter.from_structure(structure)
-        dataset = moyopy.MoyoDataset(
-            cell=cell,
-            symprec=self.symprec,
-            angle_tolerance=self.angle_tolerance,
-            setting=self.setting,
-        )
+        try:
+            cell = MoyoAdapter.from_structure(structure)
+            # If any of the parameters are provided, we use the custom parameters
+            # Otherwise, we use the default parameters (default behavior)
+            if any([self.symprec, self.angle_tolerance, self.setting]):
+                dataset = moyopy.MoyoDataset(
+                    cell=cell,
+                    symprec=self.symprec,
+                    angle_tolerance=self.angle_tolerance,
+                    setting=self.setting,
+                )
+            else:
+                dataset = moyopy.MoyoDataset(cell=cell)
+        except Exception as e:
+            logger.warning(
+                f"Error getting symmetry label for structure: {e}, will return None"
+            )
+            return None
         return dataset.number
 
 
@@ -65,7 +82,7 @@ class SPGLibSymmetry:
         """
         self.symprec = symprec
 
-    def get_symmetry_label(self, structure: Structure) -> int:
+    def get_symmetry_label(self, structure: Structure) -> int | None:
         """Get symmetry space group number from structure
 
         Args:
@@ -74,8 +91,14 @@ class SPGLibSymmetry:
         Returns:
             int: space group number
         """
-        sga = SpacegroupAnalyzer(structure, self.symprec)
-        return sga.get_symmetry_dataset().number
+        try:
+            sga = SpacegroupAnalyzer(structure, self.symprec)
+            return sga.get_symmetry_dataset().number
+        except Exception as e:
+            logger.warning(
+                f"Error getting symmetry label for structure: {e}, will return None"
+            )
+            return None
 
 
 class AFLOWSymmetry:
@@ -104,7 +127,7 @@ class AFLOWSymmetry:
                 f"the binary to be specified via {self.aflow_executable=}.\n"
             )
 
-    def get_symmetry_label(self, structure: Structure, tolerance: float = 0.1) -> str:
+    def get_symmetry_label(self, structure: Structure, tolerance: float = 0.1) -> str | None:
         """
         Returns AFLOW label for a given structure
         Args:
@@ -119,13 +142,19 @@ class AFLOWSymmetry:
         from aflow_xtal_finder import XtalFinder
         # fmt: on
 
-        xtf = XtalFinder(self.aflow_executable)
-        with ScratchDir("."):
-            structure.to_file("POSCAR")
+        try:
+            xtf = XtalFinder(self.aflow_executable)
+            with ScratchDir("."):
+                structure.to_file("POSCAR")
             data = xtf.get_prototype_label(
                 [
                     "POSCAR",
                 ],
                 options="--tolerance={}".format(tolerance),
             )
-        return data
+            return data
+        except Exception as e:
+            logger.warning(
+                f"Error getting symmetry label for structure: {e}, will return None"
+            )
+            return None
