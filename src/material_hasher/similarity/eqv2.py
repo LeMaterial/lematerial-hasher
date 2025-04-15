@@ -1,8 +1,8 @@
 # Copyright 2025 Entalpic
+import logging
 import os
 from pathlib import Path
 from typing import Optional, Union
-import logging
 
 import ase
 import numpy as np
@@ -49,7 +49,7 @@ class EquiformerV2Similarity(SimilarityMatcherBase):
         self,
         trained: bool = True,
         cpu: bool = False,
-        threshold: float = 0.01,
+        threshold: float = 0.999,
         n_relaxation_steps: int = 0,
         model_path: Optional[Union[str, Path]] = None,
         load_from_hf: bool = True,
@@ -169,6 +169,32 @@ class EquiformerV2Similarity(SimilarityMatcherBase):
         elif self.agg_type == "sum":
             return self.features["sum_norm_embeddings"]
 
+    def get_similarity_embeddings(
+        self, embeddings1: np.ndarray, embeddings2: np.ndarray
+    ) -> float:
+        """Get the similarity score between two embeddings.
+        Uses the cosine similarity between the embeddings.
+
+        Parameters
+        ----------
+        embeddings1 : np.ndarray
+            First embeddings to compare.
+        embeddings2 : np.ndarray
+            Second embeddings to compare.
+
+        Returns
+        -------
+        float
+            Similarity score between the two embeddings.
+        """
+        embeddings1_norm = np.linalg.norm(embeddings1)
+        embeddings2_norm = np.linalg.norm(embeddings2)
+
+        if embeddings1_norm == 0 or embeddings2_norm == 0:
+            return 0.0
+
+        return np.dot(embeddings1, embeddings2) / (embeddings1_norm * embeddings2_norm)
+
     def get_similarity_score(
         self, structure1: Structure, structure2: Structure
     ) -> float:
@@ -189,15 +215,9 @@ class EquiformerV2Similarity(SimilarityMatcherBase):
         """
 
         embeddings1 = self.get_structure_embeddings(structure1)
-        embeddings1_norm = np.linalg.norm(embeddings1)
-
         embeddings2 = self.get_structure_embeddings(structure2)
-        embeddings2_norm = np.linalg.norm(embeddings2)
 
-        if embeddings1_norm == 0 or embeddings2_norm == 0:
-            return 0.0
-
-        return np.dot(embeddings1, embeddings2) / (embeddings1_norm * embeddings2_norm)
+        return self.get_similarity_embeddings(embeddings1, embeddings2)
 
     def is_equivalent(
         self,
@@ -227,7 +247,7 @@ class EquiformerV2Similarity(SimilarityMatcherBase):
         if threshold is None:
             threshold = self.threshold
 
-        return score < threshold
+        return score >= threshold
 
     def get_pairwise_equivalence(
         self, structures: list[Structure], threshold: Optional[float] = None
@@ -250,4 +270,8 @@ class EquiformerV2Similarity(SimilarityMatcherBase):
         if threshold is None:
             threshold = self.threshold
 
-        return self.get_pairwise_similarity_scores(structures) >= threshold
+        all_embeddings = np.array(
+            [self.get_structure_embeddings(s) for s in structures]
+        )
+
+        return self.get_pairwise_similarity_scores_from_embeddings(all_embeddings)
