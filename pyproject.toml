@@ -42,21 +42,35 @@ dev = [
 ]
 
 [project.optional-dependencies]
+# The 'fairchem' optional dependency group provides all required packages for  
+# using the Fair-Chem library, which is used for the Eqv2 similarity method.
+# This includes the core library and PyTorch Geometric (PyG) extensions.  
 fairchem = [
-"fairchem-core>=1.4.0",
-"torch>=2.4.0",
-"torch_geometric>=2.4.0",
-"pyg_lib>=0.4.0",
-"torch_scatter>=2.1.2",
-"torch_sparse>=0.6.18",
-"torch_cluster>=1.6.3",
-"torch_spline_conv>=1.2.2",
+    # Core functionality package 
+    "fairchem-core>=1.4.0",
+    "torch>=2.4.0",
+
+    # PyTorch Geometric (PyG) base package
+    "torch_geometric>=2.4.0",
+
+    # PyG extension libraries
+    "pyg_lib>=0.4.0",
+    "torch_scatter>=2.1.2",
+    "torch_sparse>=0.6.18",
+    "torch_cluster>=1.6.3",
+    "torch_spline_conv>=1.2.2",
 ]
 
 [tool.uv]
-# these packages use torch, so we need to build them in the same environment
+# The PyG extension packages below need to be built in the same environment as torch  
+# to ensure compatibility. This option disables build isolation for these packages.
 no-build-isolation-package = ["pyg_lib", "torch_scatter", "torch_sparse", "torch_cluster", "torch_spline_conv"]
+# Specify which OS environments this configuration applies to  
+# Currently configured for macOS and Linux only  
 environments = ["sys_platform == 'darwin'", "sys_platform == 'linux'"]
+
+# These links provide pre-built PyG wheels compatible with specific PyTorch versions  
+# CPU and CUDA 12.4 variants are included
 find-links = [
   "https://data.pyg.org/whl/torch-2.4.0+cpu.html",
   "https://data.pyg.org/whl/torch-2.4.0+cu124.html"
