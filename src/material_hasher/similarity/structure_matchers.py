@@ -11,7 +11,8 @@ from material_hasher.similarity.base import SimilarityMatcherBase
 class PymatgenStructureSimilarity(SimilarityMatcherBase):
     """Implementation of the StructureMatcherBase using pymatgen's StructureMatcher."""
 
-    def __init__(self, tolerance=0.01):
+    def __init__(self, tolerance=0.01, primitive_reduction: bool = False):
+        super().__init__(primitive_reduction=primitive_reduction)
         self.tolerance = tolerance
         self.matcher = StructureMatcher(ltol=tolerance)
         self.structures: List[Structure] = []
@@ -41,7 +42,7 @@ class PymatgenStructureSimilarity(SimilarityMatcherBase):
         """
         return self.matcher.fit(structure1, structure2)
 
-    def get_similarity_score(
+    def _get_similarity_score(
         self, structure1: Structure, structure2: Structure
     ) -> float:
         """

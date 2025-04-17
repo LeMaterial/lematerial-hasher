@@ -9,13 +9,14 @@ from material_hasher.hasher.base import HasherBase
 
 
 class PointwiseDistanceDistributionHasher(HasherBase):
-    def __init__(self, cutoff: float = 100.0):
+    def __init__(self, cutoff: float = 100.0, primitive_reduction: bool = False):
         """
         Initialize the PDD Generator.
 
         Parameters:
         cutoff (float): Cutoff distance for PDD calculation. Default is 100.
         """
+        super().__init__(primitive_reduction=primitive_reduction)
         self.cutoff = int(cutoff)  # Ensure cutoff is an integer
 
     def periodicset_from_structure(self, structure: Structure) -> PeriodicSet:
@@ -60,7 +61,7 @@ class PointwiseDistanceDistributionHasher(HasherBase):
             types=atomic_numbers,
         )
 
-    def get_material_hash(self, structure: Structure) -> str:
+    def _get_material_hash(self, structure: Structure) -> str:
         """
         Generate a hashed string for a single pymatgen structure based on its
         Point-wise Distance Distribution (PDD).
@@ -77,9 +78,7 @@ class PointwiseDistanceDistributionHasher(HasherBase):
         """
         periodic_set = self.periodicset_from_structure(structure)
 
-        pdd = PDD(
-            periodic_set, int(self.cutoff), collapse=False
-        )
+        pdd = PDD(periodic_set, int(self.cutoff), collapse=False)
 
         # Round the PDD values to 4 decimal places for numerical stability and consistency.
         pdd = np.round(pdd, decimals=4)

@@ -14,6 +14,8 @@ from huggingface_hub import hf_hub_download
 from pymatgen.core import Structure
 from pymatgen.io.ase import AseAtomsAdaptor
 
+from material_hasher.utils import reduce_structure
+
 from material_hasher.similarity.base import SimilarityMatcherBase
 
 HF_MODEL_REPO_ID = os.getenv("HF_MODEL_REPO_ID", "fairchem/OMAT24")
@@ -54,7 +56,9 @@ class EquiformerV2Similarity(SimilarityMatcherBase):
         model_path: Optional[Union[str, Path]] = None,
         load_from_hf: bool = True,
         agg_type: str = "sum",
+        primitive_reduction: bool = False,
     ):
+        super().__init__(primitive_reduction=primitive_reduction)
         self.model_path = model_path
         self.load_from_hf = load_from_hf
 
@@ -161,6 +165,9 @@ class EquiformerV2Similarity(SimilarityMatcherBase):
         np.ndarray
             Embeddings of the structure.
         """
+        if self.primitive_reduction:
+            structure = reduce_structure(structure)
+
         atoms = AseAtomsAdaptor.get_atoms(structure)
         atoms = self.relax_atoms(atoms)
 
@@ -195,7 +202,7 @@ class EquiformerV2Similarity(SimilarityMatcherBase):
 
         return np.dot(embeddings1, embeddings2) / (embeddings1_norm * embeddings2_norm)
 
-    def get_similarity_score(
+    def _get_similarity_score(
         self, structure1: Structure, structure2: Structure
     ) -> float:
         """Get the similarity score between two structures.

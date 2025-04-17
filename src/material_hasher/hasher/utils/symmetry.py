@@ -10,6 +10,7 @@ from pymatgen.core import Structure
 
 logger = logging.getLogger(__name__)
 
+
 class MoyoSymmetry:
     """
     This is a wrapper around the functions of the Moyo library.
@@ -29,7 +30,10 @@ class MoyoSymmetry:
     """
 
     def __init__(
-        self, symprec: float | None = None, angle_tolerance: float | None = None, setting: str | None = None
+        self,
+        symprec: float | None = None,
+        angle_tolerance: float | None = None,
+        setting: str | None = None,
     ):
         self.symprec = symprec
         self.angle_tolerance = angle_tolerance
@@ -127,7 +131,9 @@ class AFLOWSymmetry:
                 f"the binary to be specified via {self.aflow_executable=}.\n"
             )
 
-    def get_symmetry_label(self, structure: Structure, tolerance: float = 0.1) -> str | None:
+    def get_symmetry_label(
+        self, structure: Structure, tolerance: float = 0.1
+    ) -> str | None:
         """
         Returns AFLOW label for a given structure
         Args:

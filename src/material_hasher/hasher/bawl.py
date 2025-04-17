@@ -55,12 +55,12 @@ class BAWLHasher(HasherBase):
         primitive_reduction: bool = False,
         shorten_hash: bool = False,
     ):
+        super().__init__(primitive_reduction=primitive_reduction)
         self.graphing_algorithm = graphing_algorithm
         self.bonding_algorithm = bonding_algorithm
         self.bonding_kwargs = bonding_kwargs
         self.include_composition = include_composition
         self.symmetry_labeling = symmetry_labeling
-        self.primitive_reduction = primitive_reduction
         self.shorten_hash = shorten_hash
 
     def get_bawl_materials_data(
@@ -92,7 +92,6 @@ class BAWLHasher(HasherBase):
                 structure,
                 bonding_kwargs=self.bonding_kwargs,
                 bonding_algorithm=self.bonding_algorithm,
-                primitive_reduction=self.primitive_reduction,
             )
             data["bonding_graph_hash"] = get_weisfeiler_lehman_hash(graph)
         else:
@@ -121,7 +120,7 @@ class BAWLHasher(HasherBase):
             data["composition"] = structure.composition.reduced_formula.replace(" ", "")
         return data
 
-    def get_material_hash(self, structure: Structure) -> str:
+    def _get_material_hash(self, structure: Structure) -> str:
         """Returns a hash of the structure.
 
         Parameters
