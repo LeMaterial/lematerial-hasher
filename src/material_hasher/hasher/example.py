@@ -10,10 +10,10 @@ class SimpleCompositionHasher(HasherBase):
     This is just a demo.
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, primitive_reduction: bool = False) -> None:
+        super().__init__(primitive_reduction=primitive_reduction)
 
-    def get_material_hash(self, structure: Structure) -> str:
+    def _get_material_hash(self, structure: Structure) -> str:
         """Returns a hash of the structure.
 
         Parameters

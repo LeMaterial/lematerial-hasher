@@ -11,13 +11,14 @@ from material_hasher.hasher.base import HasherBase
 
 
 class SLICESHasher(HasherBase):
-    def __init__(self):
+    def __init__(self, primitive_reduction: bool = False):
         """
         Initializes the SLICESHasher with the SLICES backend.
         """
+        super().__init__(primitive_reduction=primitive_reduction)
         self.backend = SLICES()
 
-    def get_material_hash(self, structure: Structure) -> str:
+    def _get_material_hash(self, structure: Structure) -> str:
         """
         Converts a pymatgen Structure to a SLICES string.
 
@@ -32,4 +33,3 @@ class SLICESHasher(HasherBase):
             The SLICES string representation of the structure.
         """
         return self.backend.structure2SLICES(structure)
-

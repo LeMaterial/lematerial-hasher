@@ -6,17 +6,50 @@ import numpy as np
 from pymatgen.core import Structure
 
 from material_hasher.types import StructureEquivalenceChecker
+from material_hasher.utils import reduce_structure
 
 
 class HasherBase(ABC, StructureEquivalenceChecker):
-    """Abstract class for matching of the hashes between structures."""
+    """Abstract class for matching of the hashes between structures.
 
-    @abstractmethod
+    Parameters
+    ----------
+    primitive_reduction : bool, optional
+        Whether to reduce the structures to their primitive cells.
+        Defaults to False.
+    """
+
+    def __init__(self, primitive_reduction: bool = False):
+        self.primitive_reduction = primitive_reduction
+
     def get_material_hash(
         self,
         structure: Structure,
     ) -> str:
         """Returns a hash of the structure.
+
+        Parameters
+        ----------
+        structure : Structure
+            Structure to hash.
+
+        Returns
+        -------
+        str
+            Hash of the structure.
+        """
+        if self.primitive_reduction:
+            structure = reduce_structure(structure)
+        return self._get_material_hash(structure)
+
+    @abstractmethod
+    def _get_material_hash(
+        self,
+        structure: Structure,
+    ) -> str:
+        """Get the material hash of the structure.
+
+        Should be implemented by the subclass.
 
         Parameters
         ----------
