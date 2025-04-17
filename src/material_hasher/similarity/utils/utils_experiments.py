@@ -684,14 +684,10 @@ def apply_noise_to_structures_and_compare(
                 rmsd = PymatgenStructureSimilarity().get_similarity_score(
                     initial_structure, noisy_structure
                 )  # rmsd comparison
-                hash_comparison = BAWLHasher(
-                    shorten_hash=True
-                ).is_equivalent(
+                hash_comparison = BAWLHasher(shorten_hash=True).is_equivalent(
                     initial_structure, noisy_structure
                 )  # short hash comparison
-                full_hash_comparison = BAWLHasher(
-                    shorten_hash=False
-                ).is_equivalent(
+                full_hash_comparison = BAWLHasher(shorten_hash=False).is_equivalent(
                     initial_structure, noisy_structure
                 )  # full hash comparison
 

@@ -232,7 +232,11 @@ def hasher_sensitivity(
     else:
         raise ValueError("Unknown structure checker")
 
-    return matching_hashes / len(transformed_structures) if len(transformed_structures) > 0 else 0
+    return (
+        matching_hashes / len(transformed_structures)
+        if len(transformed_structures) > 0
+        else 0
+    )
 
 
 def mean_sensitivity(
