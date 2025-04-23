@@ -5,7 +5,17 @@
 
 
 from pymatgen.core.structure import Structure
-from slices.core import SLICES
+
+try:
+    from slices.core import SLICES
+except ImportError:
+    import warnings
+
+    warnings.warn(
+        "Failed to import SLICES. If you would like to use this module, please consider running uv pip install -r requirements_slices.txt",
+        ImportWarning,
+    )
+
 
 from material_hasher.hasher.base import HasherBase
 
@@ -32,4 +42,3 @@ class SLICESHasher(HasherBase):
             The SLICES string representation of the structure.
         """
         return self.backend.structure2SLICES(structure)
-
