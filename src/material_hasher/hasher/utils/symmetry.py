@@ -8,7 +8,9 @@ from moyopy.interface import MoyoAdapter
 from pymatgen.analysis.structure_analyzer import SpacegroupAnalyzer
 from pymatgen.core import Structure
 
+
 logger = logging.getLogger(__name__)
+
 
 class MoyoSymmetry:
     """

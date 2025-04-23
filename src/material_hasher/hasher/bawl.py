@@ -54,6 +54,8 @@ class BAWLHasher(HasherBase):
         symmetry_labeling: str = "moyo",
         primitive_reduction: bool = False,
         shorten_hash: bool = False,
+        symprec: float = 0.1,
+        angle_tolerance: float | None = 5,
     ):
         self.graphing_algorithm = graphing_algorithm
         self.bonding_algorithm = bonding_algorithm
@@ -62,6 +64,9 @@ class BAWLHasher(HasherBase):
         self.symmetry_labeling = symmetry_labeling
         self.primitive_reduction = primitive_reduction
         self.shorten_hash = shorten_hash
+        self.symprec = symprec
+        self.angle_tolerance = angle_tolerance
+        
 
     def get_bawl_materials_data(
         self, structure: Structure, symmetry_label: int | str | None = None
@@ -93,6 +98,8 @@ class BAWLHasher(HasherBase):
                 bonding_kwargs=self.bonding_kwargs,
                 bonding_algorithm=self.bonding_algorithm,
                 primitive_reduction=self.primitive_reduction,
+                symprec=self.symprec,
+                angle_tolerance=self.angle_tolerance,
             )
             data["bonding_graph_hash"] = get_weisfeiler_lehman_hash(graph)
         else:
@@ -112,7 +119,10 @@ class BAWLHasher(HasherBase):
                         structure
                     )
                 case ("moyo", _):
-                    data["symmetry_label"] = MoyoSymmetry().get_symmetry_label(
+                    data["symmetry_label"] = MoyoSymmetry(
+                        symprec=self.symprec,
+                        angle_tolerance=self.angle_tolerance,
+                    ).get_symmetry_label(
                         structure
                     )
                 case (unknown, _):

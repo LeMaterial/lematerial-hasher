@@ -1,11 +1,12 @@
 # Copyright 2025 Entalpic
+import warnings
+
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.analysis.local_env import EconNN, NearNeighbors
 from pymatgen.core import Structure
 from networkx import Graph
 from moyopy import MoyoDataset
 from moyopy.interface import MoyoAdapter
-import warnings
 
 
 def get_structure_graph(
@@ -13,6 +14,8 @@ def get_structure_graph(
     bonding_kwargs: dict = {},
     bonding_algorithm: NearNeighbors = EconNN,
     primitive_reduction: bool = False,
+    symprec: float = 0.1,
+    angle_tolerance: float | None = 5,
 ) -> Graph:
     """Method to build networkx graph object based on
     bonding algorithm from Pymatgen Structure
@@ -29,15 +32,21 @@ def get_structure_graph(
     """
     assess_structure = (
         MoyoAdapter.get_structure(
-            MoyoDataset(MoyoAdapter.from_structure(structure)).prim_std_cell
+            MoyoDataset(
+                MoyoAdapter.from_structure(structure),
+                symprec=symprec,
+                angle_tolerance=angle_tolerance,
+            ).prim_std_cell
         )
         if primitive_reduction
         else structure.copy()
     )
-    structure_graph = StructureGraph.with_local_env_strategy(
-        structure=assess_structure,
-        strategy=bonding_algorithm(**bonding_kwargs),
-    )
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        structure_graph = StructureGraph.from_local_env_strategy(
+            structure=assess_structure,
+            strategy=bonding_algorithm(**bonding_kwargs),
+        )
     for n, site in zip(range(len(assess_structure)), assess_structure):
         structure_graph.graph.nodes[n]["specie"] = site.specie.name
     for edge in structure_graph.graph.edges:
