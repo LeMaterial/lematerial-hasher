@@ -54,7 +54,6 @@ fairchem = [
     "torch_geometric>=2.4.0",
 
     # PyG extension libraries
-    "pyg_lib>=0.4.0",
     "torch_scatter>=2.1.2",
     "torch_sparse>=0.6.18",
     "torch_cluster>=1.6.3",
@@ -62,10 +61,6 @@ fairchem = [
 ]
 
 [tool.uv]
-# The PyG extension packages below need to be built in the same environment as torch  
-# to ensure compatibility. This option disables build isolation for these packages.
-no-build-isolation-package = ["pyg_lib", "torch_scatter", "torch_sparse", "torch_cluster", "torch_spline_conv"]
-# Specify which OS environments this configuration applies to  
 # Currently configured for macOS and Linux only  
 environments = ["sys_platform == 'darwin'", "sys_platform == 'linux'"]
 
