@@ -110,3 +110,62 @@ class SimilarityMatcherBase(ABC, StructureEquivalenceChecker):
             Matrix of equivalence between structures.
         """
         pass
+
+    def get_structure_embeddings(
+        self, structures: list[Structure] | Structure
+    ) -> np.ndarray:
+        """Get the embeddings of a list of structures.
+
+        This is not compatible with all the similarity matchers.
+
+        Parameters
+        ----------
+        structures : list[Structure] | Structure
+            List of structures to get the embeddings of.
+
+        Returns
+        -------
+        np.ndarray
+            Embeddings of the structures.
+        """
+        raise NotImplementedError(
+            "This method is not implemented for this similarity matcher."
+        )
+
+    def get_similarity_embeddings(
+        self, embeddings1: np.ndarray, embeddings2: np.ndarray
+    ) -> float:
+        """Get the similarity score between two embeddings.
+
+        Parameters
+        ----------
+        embeddings1 : np.ndarray
+            First embeddings to compare.
+        embeddings2 : np.ndarray
+            Second embeddings to compare.
+
+        Returns
+        -------
+        float
+            Similarity score between the two embeddings.
+        """
+        raise NotImplementedError(
+            "This method is not implemented for this similarity matcher."
+        )
+
+    def get_pairwise_similarity_embeddings(self, embeddings: np.ndarray) -> np.ndarray:
+        """Get the pairwise similarity embeddings of a list of embeddings."""
+        n = len(embeddings)
+        scores = np.zeros((n, n))
+
+        for i, embedding1 in enumerate(embeddings):
+            for j, embedding2 in enumerate(embeddings):
+                if i <= j:
+                    scores[i, j] = self.get_similarity_embeddings(
+                        embedding1, embedding2
+                    )
+
+        # Fill tril
+        scores = scores + scores.T - np.diag(np.diag(scores))
+
+        return scores
