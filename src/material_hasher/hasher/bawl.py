@@ -97,17 +97,23 @@ class BAWLHasher(HasherBase):
                 "Graphing algorithm {} not implemented".format(self.graphing_algorithm)
             )
         if not self.shorten_hash:
-            match (self.symmetry_labeling, symmetry_label):  
-                case (_, label) if label is not None:  
-                    data["symmetry_label"] = label  
-                case ("AFLOW", _):  
-                    data["symmetry_label"] = AFLOWSymmetry().get_symmetry_label(structure)  
-                case ("SPGLib", _):  
-                    data["symmetry_label"] = SPGLibSymmetry().get_symmetry_label(structure)  
-                case ("moyo", _):  
-                    data["symmetry_label"] = MoyoSymmetry().get_symmetry_label(structure)  
-                case (unknown, _):  
-                    raise ValueError(f"Symmetry algorithm {unknown} not implemented")  
+            match (self.symmetry_labeling, symmetry_label):
+                case (_, label) if label is not None:
+                    data["symmetry_label"] = label
+                case ("AFLOW", _):
+                    data["symmetry_label"] = AFLOWSymmetry().get_symmetry_label(
+                        structure
+                    )
+                case ("SPGLib", _):
+                    data["symmetry_label"] = SPGLibSymmetry().get_symmetry_label(
+                        structure
+                    )
+                case ("moyo", _):
+                    data["symmetry_label"] = MoyoSymmetry().get_symmetry_label(
+                        structure
+                    )
+                case (unknown, _):
+                    raise ValueError(f"Symmetry algorithm {unknown} not implemented")
         if self.include_composition:
             data["composition"] = structure.composition.formula.replace(" ", "")
         return data
@@ -134,3 +140,15 @@ class ShortBAWLHasher(BAWLHasher):
         self,
     ):
         super().__init__(shorten_hash=True)
+
+
+class BAWLHasherLegacy(BAWLHasher):
+    def __init__(self):
+        super().__init__(
+            graphing_algorithm="WL",
+            bonding_algorithm=EconNN,
+            bonding_kwargs={"tol": 0.2, "cutoff": 10, "use_fictive_radius": True},
+            include_composition=True,
+            symmetry_labeling="SPGLib",
+            shorten_hash=False,
+        )
