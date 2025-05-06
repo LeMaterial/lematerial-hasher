@@ -9,11 +9,8 @@ from pymatgen.core.structure import Structure
 try:
     from slices.core import SLICES
 except ImportError:
-    import warnings
-
-    warnings.warn(
-        "Failed to import SLICES. If you would like to use this module, please consider running uv pip install -r requirements_slices.txt",
-        ImportWarning,
+    raise ImportError(
+        "Failed to import SLICES. If you would like to use this module, please consider running uv pip install -r requirements_slices.txt"
     )
 
 

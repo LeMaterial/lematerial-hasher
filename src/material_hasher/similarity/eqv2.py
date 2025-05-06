@@ -14,13 +14,10 @@ from ase.optimize import FIRE
 try:
     from fairchem.core import OCPCalculator
 except ImportError:
-    import warnings
-    warnings.warn(
+    raise ImportError(
         "EquiformerV2Similarity is not available. You need to install fairchem-core and its dependencies. "
-        "This issue is known to affect MacOS systems. "
-        "If you're not using MacOS, please ensure the optional dependencies required for this feature are installed. uv sync --extra fairchem and uv sync --extra geometric"
+        "Please ensure the optional dependencies required for this feature are installed. uv sync --extra fairchem and uv sync --extra geometric"
         "For more information, refer to issue #4: https://github.com/Entalpic/material-hasher/issues/4",
-        ImportWarning,
     )
 # fmt: on
 
