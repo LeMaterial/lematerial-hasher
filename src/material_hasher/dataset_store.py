@@ -4,9 +4,16 @@ from typing import Any, Optional, TypeVar
 import numpy as np
 from pymatgen.core import Structure
 
+from material_hasher.hasher import HASHERS
 from material_hasher.hasher.base import HasherBase
+from material_hasher.similarity import SIMILARITY_MATCHERS
 from material_hasher.similarity.base import SimilarityMatcherBase
 from material_hasher.types import StructureEquivalenceChecker
+
+ALL_EQUIVALENCE_CHECKERS = {
+    **{v.__name__: v for v in HASHERS.values()},
+    **{v.__name__: v for v in SIMILARITY_MATCHERS.values()},
+}
 
 EquivalenceCheckerType = TypeVar(
     "EquivalenceCheckerType", bound=HasherBase | SimilarityMatcherBase
@@ -171,8 +178,6 @@ class DatasetStore:
     def load(
         cls,
         path: str,
-        equivalence_checker_class: type[EquivalenceCheckerType],
-        equivalence_checker_kwargs: dict[str, Any] = {},
     ) -> "DatasetStore":
         """Load the dataset store from a file.
 
@@ -192,13 +197,10 @@ class DatasetStore:
         """
         save_data = np.load(path, allow_pickle=True).item()
 
-        # Verify the equivalence checker class matches
-        if save_data["equivalence_checker_class"] != equivalence_checker_class.__name__:
-            raise ValueError(
-                f"Loaded equivalence checker class {save_data['equivalence_checker_class']} "
-                f"does not match provided class {equivalence_checker_class.__name__}"
-            )
+        equivalence_checker_class = ALL_EQUIVALENCE_CHECKERS[
+            save_data["equivalence_checker_class"]
+        ]
+        store = cls(equivalence_checker_class, save_data["equivalence_checker_kwargs"])
 
-        store = cls(equivalence_checker_class, equivalence_checker_kwargs)
         store.embeddings = save_data["embeddings"]
         return store
