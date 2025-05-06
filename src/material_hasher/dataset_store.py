@@ -85,8 +85,8 @@ class DatasetStore:
             for structure in structures
         ]
 
-    def store_embeddings(self, structures: list[Structure]) -> None:
-        """Store the embeddings/hashes of the given structures.
+    def compute_and_store_embeddings(self, structures: list[Structure]) -> None:
+        """Compute the embeddings/hashes of the given structures and store them.
 
         Parameters
         ----------
@@ -94,6 +94,16 @@ class DatasetStore:
             The structures to store embeddings/hashes for.
         """
         self.embeddings.extend(self._get_structures_embeddings(structures))
+
+    def store_embeddings(self, embeddings: list[np.ndarray | str]) -> None:
+        """Store the embeddings/hashes of the given structures.
+
+        Parameters
+        ----------
+        embeddings : list[np.ndarray | str]
+            The embeddings/hashes to store.
+        """
+        self.embeddings.extend(embeddings)
 
     def is_equivalent(
         self, structure: Structure, threshold: Optional[float] = None
