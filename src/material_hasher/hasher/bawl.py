@@ -52,6 +52,7 @@ class BAWLHasher(HasherBase):
         bonding_kwargs: dict = {"tol": 0.2, "cutoff": 10, "use_fictive_radius": True},
         include_composition: bool = True,
         symmetry_labeling: str = "moyo",
+        primitive_reduction: bool = False,
         shorten_hash: bool = False,
     ):
         self.graphing_algorithm = graphing_algorithm
@@ -59,6 +60,7 @@ class BAWLHasher(HasherBase):
         self.bonding_kwargs = bonding_kwargs
         self.include_composition = include_composition
         self.symmetry_labeling = symmetry_labeling
+        self.primitive_reduction = primitive_reduction
         self.shorten_hash = shorten_hash
 
     def get_bawl_materials_data(
@@ -90,6 +92,7 @@ class BAWLHasher(HasherBase):
                 structure,
                 bonding_kwargs=self.bonding_kwargs,
                 bonding_algorithm=self.bonding_algorithm,
+                primitive_reduction=self.primitive_reduction,
             )
             data["bonding_graph_hash"] = get_weisfeiler_lehman_hash(graph)
         else:
@@ -97,19 +100,25 @@ class BAWLHasher(HasherBase):
                 "Graphing algorithm {} not implemented".format(self.graphing_algorithm)
             )
         if not self.shorten_hash:
-            match (self.symmetry_labeling, symmetry_label):  
-                case (_, label) if label is not None:  
-                    data["symmetry_label"] = label  
-                case ("AFLOW", _):  
-                    data["symmetry_label"] = AFLOWSymmetry().get_symmetry_label(structure)  
-                case ("SPGLib", _):  
-                    data["symmetry_label"] = SPGLibSymmetry().get_symmetry_label(structure)  
-                case ("moyo", _):  
-                    data["symmetry_label"] = MoyoSymmetry().get_symmetry_label(structure)  
-                case (unknown, _):  
-                    raise ValueError(f"Symmetry algorithm {unknown} not implemented")  
+            match (self.symmetry_labeling, symmetry_label):
+                case (_, label) if label is not None:
+                    data["symmetry_label"] = label
+                case ("AFLOW", _):
+                    data["symmetry_label"] = AFLOWSymmetry().get_symmetry_label(
+                        structure
+                    )
+                case ("SPGLib", _):
+                    data["symmetry_label"] = SPGLibSymmetry().get_symmetry_label(
+                        structure
+                    )
+                case ("moyo", _):
+                    data["symmetry_label"] = MoyoSymmetry().get_symmetry_label(
+                        structure
+                    )
+                case (unknown, _):
+                    raise ValueError(f"Symmetry algorithm {unknown} not implemented")
         if self.include_composition:
-            data["composition"] = structure.composition.formula.replace(" ", "")
+            data["composition"] = structure.composition.reduced_formula.replace(" ", "")
         return data
 
     def get_material_hash(self, structure: Structure) -> str:
