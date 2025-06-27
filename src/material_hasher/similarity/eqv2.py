@@ -9,7 +9,18 @@ import numpy as np
 import yaml
 from ase.filters import FrechetCellFilter
 from ase.optimize import FIRE
-from fairchem.core import OCPCalculator
+
+# fmt: off
+try:
+    from fairchem.core import OCPCalculator
+except ImportError:
+    raise ImportError(
+        "EquiformerV2Similarity is not available. You need to install fairchem-core and its dependencies. "
+        "Please ensure the optional dependencies required for this feature are installed. uv sync --extra fairchem and uv sync --extra geometric"
+        "For more information, refer to issue #4: https://github.com/Entalpic/material-hasher/issues/4",
+    )
+# fmt: on
+
 from huggingface_hub import hf_hub_download
 from pymatgen.core import Structure
 from pymatgen.io.ase import AseAtomsAdaptor
