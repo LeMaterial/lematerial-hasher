@@ -60,7 +60,12 @@ class PymatgenStructureSimilarity(SimilarityMatcherBase):
         float
             Similarity score between the two structures.
         """
-        return self.matcher.get_rms_dist(structure1, structure2)
+        dist = self.matcher.get_rms_dist(structure1, structure2)
+
+        if dist is None:
+            return 0.0
+
+        return 1 - dist[0]
 
     def get_pairwise_equivalence(
         self, structures: list[Structure], threshold: Optional[float] = None
