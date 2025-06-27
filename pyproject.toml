@@ -19,7 +19,8 @@ dependencies = [
     "pip>=24.3.1",
     # build dependencies
     "setuptools",
-    "torch>=2.4.0"
+    "torch>=2.4.0",
+    "ase>=3.25.0",
 ]
 
 [build-system]
