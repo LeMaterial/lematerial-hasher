@@ -1,5 +1,6 @@
 # Copyright 2025 Entalpic
 import logging
+import math
 from shutil import which
 
 import moyopy
@@ -8,7 +9,9 @@ from moyopy.interface import MoyoAdapter
 from pymatgen.analysis.structure_analyzer import SpacegroupAnalyzer
 from pymatgen.core import Structure
 
+
 logger = logging.getLogger(__name__)
+
 
 class MoyoSymmetry:
     """
@@ -20,19 +23,25 @@ class MoyoSymmetry:
 
     Parameters
     ----------
-    symprec : float, optional
-        Symmetry precision tolerance. Defaults to 1e-4.
-    angle_tolerance : float, optional
-        Angle tolerance. Defaults to None.
+    symprec (float, optional): Distance tolerance in Angstroms to find 
+        crystal symmetry. Defaults to 0.01, default `symprec` for 
+        pytmatgen's `SpacegroupAnalyzer`.
+    rad_angle_tolerance (float, optional): Tolerance of angle between 
+        basis vectors in radians to be tolerated in the symmetry 
+        finding. Value in radians. Defaults to None, since the internet 
+        suggests not to use this variable: https://github.com/spglib/spglib/issues/567
     setting : str, optional
         Setting. Defaults to None.
     """
 
     def __init__(
-        self, symprec: float | None = None, angle_tolerance: float | None = None, setting: str | None = None
+        self,
+        symprec: float = 0.01,
+        rad_angle_tolerance: float | None = None,
+        setting: str | None = None
     ):
         self.symprec = symprec
-        self.angle_tolerance = angle_tolerance
+        self.rad_angle_tolerance = rad_angle_tolerance
         self.setting = setting
 
     def get_symmetry_label(self, structure: Structure) -> int | None:
@@ -49,17 +58,12 @@ class MoyoSymmetry:
         """
         try:
             cell = MoyoAdapter.from_structure(structure)
-            # If any of the parameters are provided, we use the custom parameters
-            # Otherwise, we use the default parameters (default behavior)
-            if any([self.symprec, self.angle_tolerance, self.setting]):
-                dataset = moyopy.MoyoDataset(
-                    cell=cell,
-                    symprec=self.symprec,
-                    angle_tolerance=self.angle_tolerance,
-                    setting=self.setting,
-                )
-            else:
-                dataset = moyopy.MoyoDataset(cell=cell)
+            dataset = moyopy.MoyoDataset(
+                cell=cell,
+                symprec=self.symprec,
+                angle_tolerance=self.rad_angle_tolerance,
+                setting=self.setting,
+            )
         except Exception as e:
             logger.warning(
                 f"Error getting symmetry label for structure: {e}, will return None"
@@ -73,14 +77,25 @@ class SPGLibSymmetry:
     Object used to compute symmetry based on SPGLib
     """
 
-    def __init__(self, symprec: float = 0.01):
+    def __init__(
+        self,
+        symprec: float = 0.01,
+        angle_tolerance: float = -1,
+    ) -> None:
         """Set settings for Pymatgen's symmetry detection
 
         Args:
-            symprec (float, optional): Symmetry precision tollerance.
-              Defaults to 0.01.
+            symprec (float, optional): Distance tolerance in Angstroms to 
+                find crystal symmetry. Defaults to 0.01, default `symprec`
+                for pytmatgen's `SpacegroupAnalyzer`.
+            angle_tolerance (float, optional): Tolerance of angle between 
+                basis vectors in degrees to be tolerated in the symmetry 
+                finding. Value in degrees. Defaults to -1 degrees, an 
+                automatic algorithm in SPGLib. The internet suggests not 
+                to use this variable: https://github.com/spglib/spglib/issues/567
         """
         self.symprec = symprec
+        self.angle_tolerance = angle_tolerance
 
     def get_symmetry_label(self, structure: Structure) -> int | None:
         """Get symmetry space group number from structure
@@ -92,7 +107,7 @@ class SPGLibSymmetry:
             int: space group number
         """
         try:
-            sga = SpacegroupAnalyzer(structure, self.symprec)
+            sga = SpacegroupAnalyzer(structure, self.symprec, self.angle_tolerance)
             return sga.get_symmetry_dataset().number
         except Exception as e:
             logger.warning(
