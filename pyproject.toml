@@ -15,11 +15,10 @@ dependencies = [
     "structuregraph-helpers>=0.0.9",
     "average-minimum-distance>=1.5.3",
     "datasets>=3.2.0",
-    "moyopy>=0.2.3",
+    "moyopy[interface]>=0.2.3",
     "pip>=24.3.1",
     # build dependencies
     "setuptools",
-    "torch>=2.4.0"
 ]
 
 [build-system]
