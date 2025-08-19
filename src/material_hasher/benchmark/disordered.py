@@ -160,7 +160,9 @@ def get_dissimilar_structures(
 
 
 def get_group_structure_results(
-    structure_checker: StructureEquivalenceChecker, structures: List[Structure]
+    structure_checker: StructureEquivalenceChecker,
+    structures: List[Structure],
+    get_metrics: bool = True,
 ) -> dict:
     """Get classification metrics from a list of structures.
     This function computes the pairwise equivalence matrix and then the classification metrics.
@@ -171,11 +173,15 @@ def get_group_structure_results(
         Structure equivalence checker.
     structures : List[Structure]
         List of structures to compute pairwise equivalence on.
+    get_metrics : bool
+        Whether to compute the classification metrics.
+        If False, returns an empty dictionary.
 
     Returns
     -------
     metrics : dict
         Dictionary containing the classification metrics.
+        If get_metrics is False, returns an empty dictionary.
     """
 
     if isinstance(structure_checker, HasherBase):
@@ -189,8 +195,9 @@ def get_group_structure_results(
     # we only need the upper triangular part of the matrix
     triu_indices = np.triu_indices(len(structures), k=1)
     equivalence = np.array(pairwise_equivalence)[triu_indices].astype(int)
-    metrics = get_classification_results(equivalence)
-    return metrics
+    if not get_metrics:
+        return {}
+    return get_classification_results(equivalence)
 
 
 def get_classification_results(equivalence: np.ndarray) -> dict:

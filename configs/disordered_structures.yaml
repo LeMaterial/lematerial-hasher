@@ -11,7 +11,7 @@ PDD:
 # SIMILARITY
 
 eqv2:
-  threshold: 0.001
+  threshold: 0.999
   trained: True
   cpu: False
   load_from_hf: True

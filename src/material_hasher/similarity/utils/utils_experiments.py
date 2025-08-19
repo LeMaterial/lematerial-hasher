@@ -16,7 +16,7 @@ from datasets import Dataset
 from pandas import DataFrame
 from pymatgen.core import Structure
 
-from material_hasher.hasher.entalpic import EntalpicMaterialsHasher
+from material_hasher.hasher.bawl import BAWLHasher
 from material_hasher.similarity.structure_matchers import PymatgenStructureSimilarity
 
 logger = logging.getLogger(__name__)
@@ -212,7 +212,7 @@ def process_hash(couple_mat_id_structure: tuple, primitive: bool = False):
     mat_id, structure = couple_mat_id_structure[0], couple_mat_id_structure[1]
     crystal = Structure.from_str(structure, fmt="cif")
 
-    hash_result = EntalpicMaterialsHasher().get_material_hash(crystal)
+    hash_result = BAWLHasher().get_material_hash(crystal)
 
     return {"material_id": mat_id, "hash": hash_result}
 
@@ -453,7 +453,7 @@ def compute_hash_and_get_duplicates(df: DataFrame, hash_to_compare: str) -> None
 
     """
     df["hash_result"] = df.apply(
-        lambda row: EntalpicMaterialsHasher().get_material_hash(
+        lambda row: BAWLHasher().get_material_hash(
             Structure.from_str(row["cif"], fmt="cif")
         ),
         axis=1,
@@ -684,12 +684,12 @@ def apply_noise_to_structures_and_compare(
                 rmsd = PymatgenStructureSimilarity().get_similarity_score(
                     initial_structure, noisy_structure
                 )  # rmsd comparison
-                hash_comparison = EntalpicMaterialsHasher(
+                hash_comparison = BAWLHasher(
                     shorten_hash=True
                 ).is_equivalent(
                     initial_structure, noisy_structure
                 )  # short hash comparison
-                full_hash_comparison = EntalpicMaterialsHasher(
+                full_hash_comparison = BAWLHasher(
                     shorten_hash=False
                 ).is_equivalent(
                     initial_structure, noisy_structure
@@ -795,10 +795,10 @@ def get_equality_on_trajectory(
         pymatgen_equality = PymatgenStructureSimilarity().is_equivalent(
             final_structure, on_traj_structure
         )
-        hash_equality = EntalpicMaterialsHasher(shorten_hash=True).is_equivalent(
+        hash_equality = BAWLHasher(shorten_hash=True).is_equivalent(
             final_structure, on_traj_structure
         )
-        full_hash_equality = EntalpicMaterialsHasher(shorten_hash=False).is_equivalent(
+        full_hash_equality = BAWLHasher(shorten_hash=False).is_equivalent(
             final_structure, on_traj_structure
         )
 

@@ -53,7 +53,7 @@ We include the following fingerprint methods:
 -   a Structure graph, hashed via Weisfeiler-Lehman with and without symmetry labeling from SPGLib and composition
 
     ```python
-    from material_hasher.hasher.entalpic import EntalpicMaterialsHasher
+    from material_hasher.hasher.bawl import BAWLHasher
     ```
 
 -   SLICES
@@ -71,6 +71,8 @@ We include the following structure similarity methods:
     ```python
     from material_hasher.eqv2 import EquiformerV2Similarity
     ```
+
+Note that this method requires access to the EquiformerV2 model trained on OMAT24 through [OMAT24 Hugging Face page](https://huggingface.co/fairchem/OMAT24). You then need to connect to your Hugging Face account via `huggingface-cli login` the first time before you run the code.
 
 -   Pymatgen's StructureMatcher
 
@@ -100,10 +102,10 @@ To test all the hasher and similarity methods on disordered materials dataset, s
 
 To test all the hasher and similarity methods on varying transformations applied to the structures across materials sampled from LeMat-Bulk:
 
--   typical run (test Entalpic fingerprint on all test cases for a single structure):
+-   typical run (test BAWL fingerprint on all test cases for a single structure):
 
     ```bash
-    $ python -m material_hasher.benchmark.run_transformations --algorithm Entalpic  --n-test-elements 1
+    $ python -m material_hasher.benchmark.run_transformations --algorithm BAWL --n-test-elements 1
     ```
 
 -   get help:
@@ -120,13 +122,13 @@ Here is a sample code to get a hash result:
 import numpy as np
 from pymatgen.core import Structure
 
-from material_hasher.hasher.entalpic import EntalpicMaterialsHasher
+from material_hasher.hasher.bawl import BAWLHasher
 
 # create a structure
 structure = Structure(np.eye(3) * 3, ["Si"], [[0, 0, 0]])
 
 # initialize the hasher
-emh = EntalpicMaterialsHasher()
+emh = BAWLHasher()
 
 # get the hash
 print(emh.get_material_hash(structure))
@@ -156,6 +158,12 @@ $ cd material-hasher
 $ uv sync
 # Optionally, you can install the package in the editable mode
 $ uv pip install -e .
+```
+
+To utilize `EquiformerV2Similarity`, please run: 
+
+```bash
+uv sync --extra fairchem
 ```
 
 To utilize SLICES, please run:
@@ -210,7 +218,7 @@ Pymatgen:
 }
 ```
 
-EquiformerV2
+EquiformerV2:
 
 ```
 @article{liao2023equiformerv2,

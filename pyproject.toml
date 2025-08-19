@@ -13,12 +13,13 @@ requires-python = ">=3.10"
 dependencies = [
     "pymatgen>=2024.11.13",
     "structuregraph-helpers>=0.0.9",
-    "fairchem-core==1.4.0",
-    "torch_geometric>=2.4.0",
     "average-minimum-distance>=1.5.3",
     "datasets>=3.2.0",
     "moyopy>=0.2.3",
     "pip>=24.3.1",
+    # build dependencies
+    "setuptools",
+    "torch>=2.4.0"
 ]
 
 [build-system]
@@ -40,3 +41,33 @@ dev = [
     "sphinxawesome-theme>=5.3.2",
 ]
 
+[project.optional-dependencies]
+# The 'fairchem' optional dependency group provides all required packages for  
+# using the Fair-Chem library, which is used for the Eqv2 similarity method.
+# This includes the core library and PyTorch Geometric (PyG) extensions.  
+fairchem = [
+    # Core functionality package 
+    "fairchem-core>=1.4.0",
+    "torch>=2.4.0",
+
+    # PyTorch Geometric (PyG) base package
+    "torch_geometric>=2.4.0",
+
+    # PyG extension libraries
+    "torch_scatter>=2.1.2",
+    "torch_sparse>=0.6.18",
+    "torch_cluster>=1.6.3",
+    "torch_spline_conv>=1.2.2",
+]
+
+[tool.uv]
+# Currently configured for macOS and Linux only  
+environments = ["sys_platform == 'darwin'", "sys_platform == 'linux'"]
+
+# These links provide pre-built PyG wheels compatible with specific PyTorch versions  
+# CPU and CUDA 12.4 variants are included
+find-links = [
+  "https://data.pyg.org/whl/torch-2.4.0+cpu.html",
+  "https://data.pyg.org/whl/torch-2.4.0+cu124.html"
+]
+default-groups = ["dev"]
