@@ -63,7 +63,10 @@ class SimilarityMatcherBase(ABC, StructureEquivalenceChecker):
         self,
         structures: list[Structure],
     ) -> np.ndarray:
-        """Returns a matrix of similarity scores between structures.
+        """Returns a matrix $M$ of equivalence between structures.
+        $M$ is a boolean symmetric matrix where entry $M[i, j]$ is ``True``
+        if the hash of entries $i$ and $j$ are equivalent (up to ``threshold``)
+        and ``False`` otherwise.
 
         Parameters
         ----------

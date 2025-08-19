@@ -2,11 +2,13 @@
 import logging
 
 from .structure_matchers import PymatgenStructureSimilarity
+from .pdd import PointwiseDistanceDistributionSimilarity
 
 __all__ = ["PymatgenStructureSimilarity"]
 
 SIMILARITY_MATCHERS = {
     "pymatgen": PymatgenStructureSimilarity,
+    "pdd": PointwiseDistanceDistributionSimilarity,
 }
 
 try:
